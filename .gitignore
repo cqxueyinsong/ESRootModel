@@ -1,0 +1,8 @@
+
+*.xcscmblueprint
+
+.DS_Store
+
+*.xcuserstate
+
+ESRootModel.xcodeproj/project.xcworkspace/xcuserdata/eShow.xcuserdatad/UserInterfaceState.xcuserstate
