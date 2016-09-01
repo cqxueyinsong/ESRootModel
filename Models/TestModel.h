@@ -12,6 +12,7 @@
 
 @property (nonatomic, strong)NSString           * testName;
 @property (nonatomic, strong)NSNumber           * testId;
+@property (nonatomic, strong)NSArray            * testStrAry;
 @property (nonatomic, strong)TestSubModel       * subModel;
 
 
