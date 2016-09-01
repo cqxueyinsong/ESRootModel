@@ -212,7 +212,7 @@
             id arrayObj = [self object:objarr[i] OfType:arrayType forKey:key];
             if (arrayType) {
                 [arr setObject:arrayObj atIndexedSubscript:i];
-            }else{
+            }else if ([objarr[i] isKindOfClass:[NSDictionary class]]){
 #if DEBUG
                 NSString * errorLog = [NSString stringWithFormat:@"%@类在数组赋值的时候，%@为数组且内容为字典，没有提供该属性的类型,请在arrayTypesForKey填充类型",[self class],key];
                 NSLog(@"%@",errorLog);
