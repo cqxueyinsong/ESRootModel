@@ -13,7 +13,9 @@
 
 @property (nonatomic, strong)NSString                * subName;
 @property (nonatomic, strong)NSNumber                * subId;
-//TestSubModel类型的数组
-@property (nonatomic, strong)NSArray<TestSubModel *> * subModels;
+//二维数组，最终元素是TestSubModel
+@property (nonatomic, strong)NSArray<NSArray<TestSubModel *> *> * subModelArrays;
+
+@property (nonatomic, strong)NSArray<TestSubModel *> *subModels;
 
 @end

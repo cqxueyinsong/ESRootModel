@@ -14,7 +14,7 @@
 /**
  *  @author EShow, 16-08-18 17:08:19
  *
- *  @brief 这个字段非常重要，当某个model类的某个属性为数组(该数组的数据类型也是一个model类，如果是基础类型请忽略)时，请吧该属性的属性名作为key值，该属性的数组里面元素最终的类型的字符串作为value保存在当前字典里
+ *  @brief 这个字段非常重要，当某个model类的某个属性为数组时(该数组的数据类型也是一个model类，如果是基础类型请忽略,如果是多维数组，当成一维数组处理)，请吧该属性的属性名作为key值，该属性的数组里面元素最终的类型的字符串作为value保存在当前字典里,
  */
 @property (nonatomic,strong,readonly)NSDictionary * arrayTypesForKey;
 

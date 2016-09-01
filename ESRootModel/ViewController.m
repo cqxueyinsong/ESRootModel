@@ -60,6 +60,21 @@
     
     [subModel setSubModels:array];
     
+    NSMutableArray * ary = [NSMutableArray array];
+    for (NSInteger j = 0; j < 5; j ++) {
+        NSMutableArray * array = [NSMutableArray array];
+        for (NSInteger i = 0 ; i < 5; i ++) {
+            TestSubModel * model = [[TestSubModel alloc]init];
+            [model setSubName:[NSString stringWithFormat:@"testSubModel中的submodelArrays的第%@个数组中的第%@个testSubmodel",@(j).description,@(i).description]];
+            [model setSubId:@(i)];
+            [array addObject:model];
+        }
+        [ary addObject:array];
+    }
+   
+    [subModel setSubModelArrays:ary];
+    
+    
     [model setSubModel:subModel];
     //model转字典
     NSDictionary * jsonObj = [model getObjectData];

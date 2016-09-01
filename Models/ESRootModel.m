@@ -247,10 +247,10 @@ static NSString * ESRootModel_Default_Type = @"_ESRootModel_Default_Type";
  **/
             if ([objarr[i] isKindOfClass:[NSArray class]] || [objarr[i] isKindOfClass:[NSDictionary class]]) {
                 arrayObj = [self object:objarr[i] OfType:arrayType forKey:key];
-                
-                if (arrayObj) {
-                    [arr setObject:arrayObj atIndexedSubscript:i];
-                }
+            
+            if (arrayObj) {
+                [arr setObject:arrayObj atIndexedSubscript:i];
+            }
             }else{
                 [arr addObject:objarr[i]];
             }

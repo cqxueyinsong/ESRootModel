@@ -12,7 +12,8 @@
 
 - (NSDictionary *)arrayTypesForKey{
     return @{
-             @"subModels" : @"TestSubModel"
+             @"subModels" : @"TestSubModel",
+             @"subModelArrays" : @"TestSubModel"
              };
 }
 
