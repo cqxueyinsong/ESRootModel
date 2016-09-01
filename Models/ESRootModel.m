@@ -122,7 +122,7 @@
 
 #ifdef DEBUG
 - (void)dealloc{
-    NSLog(@"%@ dealloc",[self class]);
+//    NSLog(@"%@ dealloc",[self class]);
 }
 #endif
 
