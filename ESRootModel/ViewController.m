@@ -43,7 +43,9 @@
     [model setTestName:@"测试Name"];
     [model setTestId:@(10)];
     [model setTestStrAry:@[@"1",@"2",@"3",@"4"]];
-    
+    [model setType:TYPE_TEST_FIRST];
+    [model setFloatV:5.06f];
+    [model setCharV:'A'];
     TestSubModel * subModel = [[TestSubModel alloc]init];
     [subModel setSubName:@"TestModel中的TestSubModel"];
     [subModel setSubId:@(11)];

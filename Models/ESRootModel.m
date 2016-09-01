@@ -9,10 +9,10 @@
 #import "ESRootModel.h"
 #import <objc/runtime.h>
 #import <objc/message.h>
+
+static NSString * ESRootModel_Default_Type = @"_ESRootModel_Default_Type";
+
 @implementation ESRootModel
-
-
-
 
 
 - (void)setValue:(id)value forUndefinedKey:(NSString *)key{
@@ -42,7 +42,40 @@
  *  @return 返回对应的字典
  */
 - (NSDictionary *)getObjectData{
-    return [ESRootModel getObjectData:self];
+
+    Class currentclass = [self class];
+    
+    NSMutableDictionary *dic = [NSMutableDictionary dictionary];
+    NSString * className = NSStringFromClass(currentclass);
+    
+    while ( ![className isEqualToString:@"ESRootModel"] ) {
+        
+        unsigned int propsCount;
+        objc_property_t *props = class_copyPropertyList(currentclass, &propsCount);
+        
+        for(int i = 0;i < propsCount; i++){
+            
+            objc_property_t prop = props[i];
+            NSString *propName = [NSString stringWithUTF8String:property_getName(prop)];
+            
+            if ([self getUselessFieldsWithKey:propName]) {
+                continue;
+            }
+            
+            id value = [self valueForKey:propName];
+            if(value == nil){
+                continue;
+            }
+            else{
+                value = [ESRootModel getObjectInternal:value];
+            }
+            [dic setObject:value forKey:propName];
+        }
+        free(props);
+        currentclass = [currentclass superclass];
+        className = NSStringFromClass(currentclass);
+    }
+    return [NSDictionary dictionaryWithDictionary:dic];
 }
 
 /**
@@ -65,15 +98,11 @@
         unsigned int propsCount;
         objc_property_t *props = class_copyPropertyList(currentclass, &propsCount);
         
-        for(int i = 0;i < propsCount; i++)
-        {
+        for(int i = 0;i < propsCount; i++){
+            
             objc_property_t prop = props[i];
             NSString *propName = [NSString stringWithUTF8String:property_getName(prop)];
-            
-            if ([ESRootModel isNotRequiredToDictionary:propName]) {
-                continue;
-            }
-            
+
             id value = [obj valueForKey:propName];
             if(value == nil){
                 continue;
@@ -103,6 +132,7 @@
         NSArray *objarr = obj;
         NSMutableArray *arr = [NSMutableArray arrayWithCapacity:objarr.count];
         for(int i = 0;i < objarr.count; i++){
+            
             [arr setObject:[ESRootModel getObjectInternal:[objarr objectAtIndex:i]] atIndexedSubscript:i];
         }
         return [NSArray arrayWithArray:arr];
@@ -110,8 +140,8 @@
     if([obj isKindOfClass:[NSDictionary class]]){
         NSDictionary *objdic = obj;
         NSMutableDictionary *dic = [NSMutableDictionary dictionaryWithCapacity:[objdic count]];
-        for(NSString *key in objdic.allKeys)
-        {
+        for(NSString *key in objdic.allKeys){
+            
             [dic setObject:[ESRootModel getObjectInternal:[objdic objectForKey:key]] forKey:key];
         }
         return [NSDictionary dictionaryWithDictionary:dic];
@@ -125,19 +155,6 @@
 //    NSLog(@"%@ dealloc",[self class]);
 }
 #endif
-
-/**
- *  @author EShow, 16-08-18 16:08:58
- *
- *  @brief 当前属性不需要包含在该字典里面
- *
- *  @param propName 不需要包含的字段名
- *
- *  @return 是否需要包含
- */
-+ (BOOL)isNotRequiredToDictionary:(NSString *)propName{
-    return ([propName isEqualToString:@"isUseObjResponse"]||[propName isEqualToString:@"responseClass"]);
-}
 
 
 #pragma mark - 用字典为当前对象赋值
@@ -157,8 +174,8 @@
         unsigned int propsCount;
         objc_property_t *props = class_copyPropertyList(currentclass, &propsCount);
         
-        for(int i = 0;i < propsCount; i++)
-        {
+        for(int i = 0;i < propsCount; i++){
+            
             objc_property_t prop = props[i];
             NSString *propName = [NSString stringWithUTF8String:property_getName(prop)];
             NSString * type = [NSString stringWithUTF8String:property_getAttributes(prop)];
@@ -169,7 +186,12 @@
                 NSAssert(attributes.count > 1, errorLog);
             }
 #endif
-            type = [attributes objectAtIndex:1];
+            if (attributes.count > 1) {
+                type = [attributes objectAtIndex:1];
+            }else{
+                type = ESRootModel_Default_Type;
+            }
+            
 
             id value = [diconary valueForKey:propName];
             if(value == nil){
@@ -192,6 +214,10 @@
 
 - (id)object:(id)obj OfType:(Class)type forKey:(NSString *)key{
     
+    if ([NSStringFromClass(type) isEqualToString:ESRootModel_Default_Type]) {
+        return obj;
+    }
+    
     if ([obj isKindOfClass:[NSDictionary class]]) {
         ESRootModel * model = [[type alloc]init];
         [model setObjectsWithDic:obj];
@@ -207,12 +233,30 @@
         NSArray *objarr = obj;
         NSMutableArray *arr = [NSMutableArray arrayWithCapacity:objarr.count];
         for(int i = 0;i < objarr.count; i++){
-            
             Class arrayType = NSClassFromString([self getArrayTypeWithKey:key]);
-            id arrayObj = [self object:objarr[i] OfType:arrayType forKey:key];
-            if (arrayType) {
-                [arr setObject:arrayObj atIndexedSubscript:i];
-            }else if ([objarr[i] isKindOfClass:[NSDictionary class]]){
+            id arrayObj;
+            
+/**
+ 当前对象有三种情况:
+ 
+ ①:如果是数组,则找到数组的最里面一层然后实例化该对象一层层返回，递归完毕后追加到当前数组
+ 
+ ②:如果是字典,直接递归当前方法，获取该字典对应的实例赋值后追加到当前数组
+ 
+ ③:如果既不是字典也不是数组,说明是一个基础的OC的数据类型(NSString,NSNumber,NSData),直接追加到当前数组
+ **/
+            if ([objarr[i] isKindOfClass:[NSArray class]] || [objarr[i] isKindOfClass:[NSDictionary class]]) {
+                arrayObj = [self object:objarr[i] OfType:arrayType forKey:key];
+                
+                if (arrayObj) {
+                    [arr setObject:arrayObj atIndexedSubscript:i];
+                }
+            }else{
+                [arr addObject:objarr[i]];
+            }
+            
+//本次没有做追加操作，说名当前对象是数组或者字典且最后没有获取到对应的实例
+            if (arr.count <= i) {
 #if DEBUG
                 NSString * errorLog = [NSString stringWithFormat:@"%@类在数组赋值的时候，%@为数组且内容为字典，没有提供该属性的类型,请在arrayTypesForKey填充类型",[self class],key];
                 NSLog(@"%@",errorLog);
