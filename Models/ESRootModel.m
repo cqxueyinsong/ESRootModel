@@ -14,6 +14,10 @@ static NSString * ESRootModel_Default_Type = @"_ESRootModel_Default_Type";
 
 @implementation ESRootModel
 
++ (instancetype)defaultModel{
+   __autoreleasing ESRootModel * model = [[self alloc]init];
+    return model;
+}
 
 - (void)setValue:(id)value forUndefinedKey:(NSString *)key{
 
@@ -124,7 +128,6 @@ static NSString * ESRootModel_Default_Type = @"_ESRootModel_Default_Type";
     
     if([obj isKindOfClass:[NSString class]]
        || [obj isKindOfClass:[NSNumber class]]
-       || [obj isKindOfClass:[NSNull class]]
        ||[obj isKindOfClass:[NSData class]]){
         return obj;
     }
@@ -180,12 +183,7 @@ static NSString * ESRootModel_Default_Type = @"_ESRootModel_Default_Type";
             NSString *propName = [NSString stringWithUTF8String:property_getName(prop)];
             NSString * type = [NSString stringWithUTF8String:property_getAttributes(prop)];
             NSArray * attributes = [type componentsSeparatedByString:@"\""];
-#if DEBUG
-            if (attributes.count > 1) {
-                NSString * errorLog = [NSString stringWithFormat:@"%@属性%@为基础类型",[self class],propName];
-                NSAssert(attributes.count > 1, errorLog);
-            }
-#endif
+
             if (attributes.count > 1) {
                 type = [attributes objectAtIndex:1];
             }else{
@@ -196,8 +194,7 @@ static NSString * ESRootModel_Default_Type = @"_ESRootModel_Default_Type";
             id value = [diconary valueForKey:propName];
             if(value == nil){
                 continue;
-            }
-            else{
+            }else{
                 value = [self object:diconary[propName] OfType:NSClassFromString(type) forKey:propName];
             }
             if (value) {
@@ -220,7 +217,12 @@ static NSString * ESRootModel_Default_Type = @"_ESRootModel_Default_Type";
     
     if ([obj isKindOfClass:[NSDictionary class]]) {
         ESRootModel * model = [[type alloc]init];
-        [model setObjectsWithDic:obj];
+        if ([[model class]isSubclassOfClass:[ESRootModel class]]) {
+            [model setObjectsWithDic:obj];
+        }else{
+            [model setValuesForKeysWithDictionary:obj];
+        }
+        
         return model;
     }
     if([obj isKindOfClass:[NSString class]]
@@ -235,7 +237,6 @@ static NSString * ESRootModel_Default_Type = @"_ESRootModel_Default_Type";
         for(int i = 0;i < objarr.count; i++){
             Class arrayType = NSClassFromString([self getArrayTypeWithKey:key]);
             id arrayObj;
-            
 /**
  当前对象有三种情况:
  
@@ -252,13 +253,13 @@ static NSString * ESRootModel_Default_Type = @"_ESRootModel_Default_Type";
                 [arr setObject:arrayObj atIndexedSubscript:i];
             }
             }else{
-                [arr addObject:objarr[i]];
+                [arr setObject:objarr[i] atIndexedSubscript:i];
             }
             
 //本次没有做追加操作，说名当前对象是数组或者字典且最后没有获取到对应的实例
             if (arr.count <= i) {
 #if DEBUG
-                NSString * errorLog = [NSString stringWithFormat:@"%@类在数组赋值的时候，%@为数组且内容为字典，没有提供该属性的类型,请在arrayTypesForKey填充类型",[self class],key];
+                NSString * errorLog = [NSString stringWithFormat:@"%@类在数组赋值的时候，%@为数组且内容为字典，没有提供该属性的类型,请在arrayTypesForKey填充类型 \n如果你已经提供了该属性，请确认:\n1:是否将key——value 填反了\n2:value的值写错了\n3:需要的类没有实现(没有提供@implementation)",[self class],key];
                 NSLog(@"%@",errorLog);
                 NSAssert(arrayObj != nil, errorLog);
 #else

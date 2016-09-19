@@ -46,6 +46,7 @@
     [model setType:TYPE_TEST_FIRST];
     [model setFloatV:5.06f];
     [model setCharV:'A'];
+    [model setBoolV:NO];
     TestSubModel * subModel = [[TestSubModel alloc]init];
     [subModel setSubName:@"TestModel中的TestSubModel"];
     [subModel setSubId:@(11)];

@@ -8,10 +8,12 @@
 
 #import "ESRootModel.h"
 #import "TestSubModel.h"
+
 typedef NS_ENUM(NSInteger, TYPE_TEST_) {
     TYPE_TEST_FIRST = 1,
     TYPE_TEST_SECOND = 2
 };
+
 @interface TestModel : ESRootModel
 
 @property (nonatomic, strong)NSString           * testName;
@@ -25,4 +27,5 @@ typedef NS_ENUM(NSInteger, TYPE_TEST_) {
 //字典中转化为ASCII码
 @property (nonatomic, assign)char                 charV;
 
+@property (nonatomic, assign)BOOL                 boolV;
 @end

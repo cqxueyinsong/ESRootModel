@@ -43,4 +43,5 @@
  */
 - (void)setObjectsWithDic:(NSDictionary *)diconary;
 
++ (instancetype)defaultModel;
 @end
