@@ -22,6 +22,8 @@ typedef NS_ENUM(NSInteger, TYPE_TEST_) {
 @property (nonatomic, strong)TestSubModel       * subModel;
 @property (nonatomic, assign)TYPE_TEST_           type;
 
+@property (nonatomic, assign)NSInteger            intV;
+
 @property (nonatomic, assign)float                floatV;
 
 //字典中转化为ASCII码

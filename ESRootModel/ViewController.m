@@ -27,7 +27,7 @@
     [self.view addSubview:title];
     
     UILabel * desLabel = [[UILabel alloc]init];
-    [desLabel setText:@"  请在控制台看LOG\n  test方法:创建一个TestModel类，通过setter为model对象赋值，然后创建另外一个TestModel类，用之前创建的model类生成的字典为新的model对象赋值\n\n\n   注意:本类目前版本不能识别非对象的属性,所有的属性必须使用OC类,int、float、double、long等基础类型请使用NSNumber\n\n☻☻☻☻☻邮箱:steamxys2013@163.com  "];
+    [desLabel setText:@"  请在控制台看LOG\n  test方法:创建一个TestModel类，通过setter为model对象赋值，然后创建另外一个TestModel类，用之前创建的model类生成的字典为新的model对象赋值\n\n\n   注意:本类目前版本不能识别结构体,联合,如遇到特殊情况,请转化成类进行实现\n\n☻☻☻☻☻邮箱:steamxys2013@163.com  "];
     [desLabel setFrame:CGRectMake(0, 0, [UIScreen mainScreen].bounds.size.width - 20, 20)];
     [desLabel setLineBreakMode:NSLineBreakByCharWrapping];
     [desLabel setNumberOfLines:0];
@@ -44,6 +44,7 @@
     [model setTestId:@(10)];
     [model setTestStrAry:@[@"1",@"2",@"3",@"4"]];
     [model setType:TYPE_TEST_FIRST];
+    [model setIntV:778];
     [model setFloatV:5.06f];
     [model setCharV:'A'];
     [model setBoolV:NO];
